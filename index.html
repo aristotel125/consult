@@ -1,1703 +1,1687 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.6">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Интерактивная консультация</title>
+<style>
+:root {
+  --bg:#F8FAFC; --surface:#FFFFFF; --text:#0F172A; --muted:#64748B;
+  --border:#E2E8F0; --primary:#2563EB; --primary-hover:#1D4ED8;
+  --radius-lg:18px; --radius-md:12px; --shadow:0 6px 20px rgba(15,23,42,.08);
+  --gray:#F1F5F9; --dark:#0F172A;
+  --success:#10B981; --warning:#F59E0B; --danger:#EF4444;
+  --danger-light:rgba(239,68,68,0.2);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font:18px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Text",Roboto,Arial,sans-serif;
+  padding:32px 16px; display:flex; justify-content:center;
+}
+.wrap{width:100%; max-width:900px;}
+header{text-align:center; margin-bottom:32px;}
+h1{margin:0 0 12px; font-size:40px; font-weight:700;}
+.sub{margin:0; color:var(--muted); font-size:18px;}
+.card{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow);
+  padding:28px; margin-bottom:28px;
+}
+h2{margin-top:0; font-size:24px; color:var(--text);}
+h3{margin-top:20px; margin-bottom:12px; font-size:20px; color:var(--text);}
+
+/* Вопросы */
+.question-block{
+  padding:16px 0;
+  border-bottom:1px solid var(--border);
+}
+.question-block:last-child{border-bottom:none;}
+.question-text{
+  font-size:17px;
+  margin-bottom:12px;
+  color:var(--text);
+}
+.question-num{
+  color:var(--muted);
+  margin-right:8px;
+}
+.options{
+  display:flex;
+  gap:12px;
+}
+.option-btn{
+  flex:1;
+  padding:12px 16px;
+  border:2px solid var(--border);
+  border-radius:var(--radius-md);
+  background:#fff;
+  cursor:pointer;
+  font-size:16px;
+  font-weight:500;
+  transition:all 0.2s;
+  text-align:center;
+}
+.option-btn:hover{
+  border-color:var(--primary);
+  background:rgba(37,99,235,0.05);
+}
+.option-btn.selected{
+  background:var(--primary);
+  color:#fff;
+  border-color:var(--primary);
+}
+.option-btn.yes{border-color:#10B981;}
+.option-btn.yes:hover{background:rgba(16,185,129,0.1);}
+.option-btn.yes.selected{background:#10B981; border-color:#10B981;}
+.option-btn.unknown{border-color:#F59E0B;}
+.option-btn.unknown:hover{background:rgba(245,158,11,0.1);}
+.option-btn.unknown.selected{background:#F59E0B; border-color:#F59E0B;}
+.option-btn.no{border-color:#EF4444;}
+.option-btn.no:hover{background:rgba(239,68,68,0.1);}
+.option-btn.no.selected{background:#EF4444; border-color:#EF4444;}
+
+/* Уведомление */
+.alert{
+  background:#FEF2F2;
+  border:1px solid #FECACA;
+  color:#991B1B;
+  padding:12px 16px;
+  border-radius:var(--radius-md);
+  margin-top:16px;
+  display:none;
+  font-size:15px;
+}
+.alert.show{display:block;}
+
+/* Загрузка */
+.loading{
+  text-align:center;
+  padding:40px 0;
+  display:none;
+}
+.loading.show{display:block;}
+.spinner{
+  width:40px;
+  height:40px;
+  margin:0 auto;
+  border:3px solid var(--border);
+  border-top:3px solid var(--primary);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
+.loading-text{
+  margin-top:16px;
+  color:var(--muted);
+}
+
+/* Профиль с блоками */
+.profile-blocks{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  margin-top:20px;
+}
+.profile-block{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  padding:20px;
+  background:var(--gray);
+  border-radius:var(--radius-md);
+}
+@media(max-width:768px){
+  .profile-block{grid-template-columns:1fr;}
+}
+.block-title{
+  grid-column:1/-1;
+  font-size:16px;
+  font-weight:600;
+  color:var(--primary);
+  margin-bottom:8px;
+  padding-bottom:8px;
+  border-bottom:2px solid var(--primary);
+}
+.block-strength, .block-weakness{
+  background:#fff;
+  border-radius:8px;
+  padding:16px;
+  min-height:80px;
+}
+.block-strength{
+  border-left:3px solid var(--success);
+}
+.block-weakness{
+  border-left:3px solid var(--warning);
+}
+.block-label{
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  margin-bottom:8px;
+}
+.block-content{
+  font-size:14px;
+  line-height:1.5;
+  color:var(--text);
+}
+
+/* Колесо баланса с ползунками */
+.wheel-section{
+  display:grid;
+  grid-template-columns:1fr 1.2fr;
+  gap:30px;
+  align-items:center;
+}
+@media(max-width:768px){
+  .wheel-section{grid-template-columns:1fr;}
+}
+.wheel-controls{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.slider-group{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.slider-label{
+  font-size:14px;
+  min-width:140px;
+}
+.slider-label.danger{
+  color:var(--danger);
+  font-weight:600;
+}
+.slider{
+  flex:1;
+  height:6px;
+  background:var(--border);
+  border-radius:3px;
+  -webkit-appearance:none;
+  appearance:none;
+  outline:none;
+}
+.slider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:20px;
+  height:20px;
+  background:var(--primary);
+  border-radius:50%;
+  cursor:pointer;
+  box-shadow:0 2px 4px rgba(0,0,0,0.2);
+}
+.slider::-moz-range-thumb{
+  width:20px;
+  height:20px;
+  background:var(--primary);
+  border-radius:50%;
+  cursor:pointer;
+  box-shadow:0 2px 4px rgba(0,0,0,0.2);
+}
+.slider-value{
+  min-width:45px;
+  text-align:center;
+  font-weight:600;
+  color:var(--primary);
+}
+.slider-value.danger{
+  color:var(--danger);
+}
+
+/* Улучшенный вертикальный эквалайзер */
+.values-equalizer{
+  display:flex;
+  justify-content:space-around;
+  align-items:flex-end;
+  height:320px;
+  margin-top:30px;
+  padding:20px;
+  background:linear-gradient(180deg, transparent, var(--gray));
+  border-radius:var(--radius-md);
+  position:relative;
+}
+/* Шкала на фоне */
+.values-equalizer::before{
+  content:'';
+  position:absolute;
+  top:20px;
+  left:20px;
+  right:20px;
+  bottom:100px;
+  background:repeating-linear-gradient(
+    0deg,
+    var(--border) 0,
+    var(--border) 1px,
+    transparent 1px,
+    transparent 20%
+  );
+  opacity:0.3;
+  pointer-events:none;
+}
+/* Метки шкалы */
+.scale-marks{
+  position:absolute;
+  left:0;
+  top:20px;
+  bottom:100px;
+  width:15px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  font-size:11px;
+  color:var(--muted);
+}
+.scale-mark{
+  display:flex;
+  align-items:center;
+}
+.eq-column{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  width:100px;
+  height:100%;
+  position:relative;
+  z-index:1;
+}
+.eq-bar-container{
+  flex:1;
+  width:80px;
+  position:relative;
+  display:flex;
+  align-items:flex-end;
+  margin-bottom:10px;
+}
+.eq-bar-bg{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:100%;
+  background:linear-gradient(180deg, 
+    rgba(37,99,235,0.05) 0%,
+    rgba(37,99,235,0.1) 100%
+  );
+  border:1px solid rgba(37,99,235,0.2);
+  border-radius:6px;
+}
+.eq-bar{
+  width:100%;
+  background:linear-gradient(180deg, #2563EB, #1D4ED8);
+  border-radius:6px 6px 0 0;
+  transition:height 0.3s ease;
+  position:relative;
+  min-height:10px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding-top:8px;
+  z-index:2;
+}
+.eq-value{
+  font-size:16px;
+  font-weight:700;
+  color:#fff;
+  text-shadow:0 1px 2px rgba(0,0,0,0.2);
+}
+.eq-controls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.eq-btn{
+  width:32px;
+  height:32px;
+  border:2px solid var(--primary);
+  background:#fff;
+  border-radius:8px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  font-weight:700;
+  color:var(--primary);
+  transition:all 0.2s;
+}
+.eq-btn:hover{
+  background:var(--primary);
+  color:#fff;
+  transform:scale(1.1);
+}
+.eq-btn:active{
+  transform:scale(0.95);
+}
+.eq-label{
+  margin-top:12px;
+  font-size:13px;
+  text-align:center;
+  color:var(--text);
+  max-width:90px;
+  line-height:1.3;
+  font-weight:500;
+}
+
+canvas{
+  display:block;
+  background:#fff;
+  border-radius:var(--radius-md);
+  border:1px solid var(--border);
+}
+
+/* Кнопки */
+.btn{
+  padding:14px 28px;
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  border-radius:var(--radius-md);
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:inline-block;
+}
+.btn:hover{background:var(--primary-hover);}
+.btn:disabled{
+  background:var(--muted);
+  cursor:not-allowed;
+}
+.btn-center{
+  display:flex;
+  justify-content:center;
+  margin-top:24px;
+}
+
+/* Прогресс */
+.progress{
+  background:var(--gray);
+  height:4px;
+  border-radius:2px;
+  margin:20px 0;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:var(--primary);
+  transition:width 0.3s;
+  border-radius:2px;
+}
+.progress-text{
+  text-align:center;
+  font-size:14px;
+  color:var(--muted);
+  margin-top:8px;
+}
+
+/* Блок возможностей после курса */
+.opportunities-section{
+  background:var(--dark);
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+.opportunities-title{
+  color:#fff !important;
+  text-align:center;
+  font-size:28px;
+  margin-bottom:40px;
+  position:relative;
+}
+.opportunities-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+  gap:20px;
+  position:relative;
+  z-index:1;
+}
+.opportunity-card{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:var(--radius-md);
+  padding:24px;
+  color:#fff;
+  transition:all 0.3s ease;
+}
+.opportunity-card:hover{
+  transform:translateY(-3px);
+  background:rgba(255,255,255,0.08);
+  border-color:rgba(255,255,255,0.2);
+}
+.opportunity-heading{
+  font-size:18px;
+  font-weight:600;
+  color:#fff;
+  margin:0 0 16px;
+  padding-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,0.2);
+}
+.opportunity-list{
+  margin:0;
+  padding-left:20px;
+  font-size:14px;
+  line-height:1.8;
+  color:rgba(255,255,255,0.9);
+}
+.opportunity-list li{
+  margin-bottom:8px;
+  position:relative;
+}
+.opportunity-list li::marker{
+  color:var(--primary);
+}
+
+/* Блок с бонусами */
+.bonuses-section{
+  margin:20px 0 30px;
+  padding:20px;
+  background:linear-gradient(135deg, rgba(37,99,235,0.05), rgba(16,185,129,0.05));
+  border-radius:var(--radius-md);
+  border:1px solid rgba(37,99,235,0.2);
+}
+.bonuses-toggle{
+  margin:0;
+  font-size:16px;
+  line-height:1.6;
+  cursor:pointer;
+  color:var(--text);
+  transition:color 0.2s;
+}
+.bonuses-toggle:hover{
+  color:var(--primary);
+}
+.toggle-hint{
+  color:var(--primary);
+  font-size:14px;
+  text-decoration:underline;
+}
+.bonuses-content{
+  margin-top:20px;
+  animation:slideDown 0.3s ease;
+}
+@keyframes slideDown{
+  from{opacity:0; transform:translateY(-10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+.bonuses-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-bottom:20px;
+}
+.bonus-item{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:12px;
+  background:#fff;
+  border-radius:8px;
+  border-left:3px solid var(--success);
+}
+.bonus-number{
+  min-width:28px;
+  height:28px;
+  background:var(--success);
+  color:#fff;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+  font-size:14px;
+}
+.bonus-text{
+  flex:1;
+  font-size:15px;
+  line-height:1.5;
+  color:var(--text);
+}
+.btn-hide-bonuses{
+  padding:10px 20px;
+  background:var(--muted);
+  color:#fff;
+  border:none;
+  border-radius:var(--radius-md);
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-hide-bonuses:hover{
+  background:var(--text);
+}
+
+/* Калькулятор дохода */
+.field{
+  margin-bottom:14px;
+}
+.field label{
+  display:block; 
+  font-weight:600; 
+  margin-bottom:6px;
+}
+.field input[type=number], 
+.field select, 
+select{
+  width:100%; 
+  height:52px; 
+  padding:0 16px;
+  border-radius:var(--radius-md); 
+  border:1px solid var(--border);
+  font-size:16px; 
+  font-family:inherit; 
+  background:#fff;
+}
+.skills-grid{
+  display:grid; 
+  grid-template-columns:repeat(2,1fr); 
+  gap:12px; 
+  margin-top:16px;
+}
+.skill{
+  background:var(--gray); 
+  border-radius:var(--radius-md); 
+  border:1px solid var(--border); 
+  padding:14px; 
+  text-align:center; 
+  cursor:pointer;
+  transition:all 0.2s;
+  font-size:15px;
+}
+.skill:hover{
+  background:rgba(37,99,235,0.1);
+  border-color:var(--primary);
+}
+.skill.active{
+  background:var(--primary); 
+  color:#fff; 
+  border-color:var(--primary-hover);
+}
+.final-block{
+  background:var(--dark); 
+  color:#fff;
+  border-radius:var(--radius-lg); 
+  padding:40px 28px;
+  text-align:center; 
+  margin-top:28px;
+}
+.final-title{
+  font-size:18px;
+  margin-bottom:16px;
+  opacity:0.9;
+}
+.final-income{
+  font-size:44px; 
+  font-weight:700; 
+  letter-spacing:-0.02em;
+}
+.notice{
+  margin:40px auto;
+  max-width:900px;
+  padding:20px;
+  background:#F1F5F9;
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  font-size:15px;
+  color:var(--muted);
+  text-align:center;
+}
+
+/* Анимации */
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+.fade-in{animation:fadeIn 0.4s ease;}
+
+/* Подсказка для менеджера */
+.manager-hint{
+  background:rgba(37,99,235,0.1);
+  border-left:3px solid var(--primary);
+  padding:12px 16px;
+  margin-top:16px;
+  font-size:14px;
+  color:var(--primary);
+}
+
+/* Кнопка скачивания */
+.download-section{
+  text-align:center;
+  margin:40px auto;
+  max-width:900px;
+}
+.btn-download{
+  padding:18px 40px;
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  border-radius:var(--radius-md);
+  font-size:18px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:inline-block;
+  box-shadow:0 4px 12px rgba(37,99,235,0.3);
+}
+.btn-download:hover{
+  background:var(--primary-hover);
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(37,99,235,0.4);
+}
+.btn-download:active{
+  transform:translateY(0);
+}
+.download-hint{
+  margin-top:12px;
+  font-size:14px;
+  color:var(--muted);
+}
+
+footer{text-align:center; color:var(--muted); font-size:14px; margin-top:40px}
+</style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="ru"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1">&lt;meta charset="utf-8" /&gt;</p>
-<p class="p1">&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;</p>
-<p class="p1">&lt;title&gt;Интерактивная консультация&lt;/title&gt;</p>
-<p class="p1">&lt;style&gt;</p>
-<p class="p1">:root {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>--bg:#F8FAFC; --surface:#FFFFFF; --text:#0F172A; --muted:#64748B;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>--border:#E2E8F0; --primary:#2563EB; --primary-hover:#1D4ED8;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>--radius-lg:18px; --radius-md:12px; --shadow:0 6px 20px rgba(15,23,42,.08);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>--gray:#F1F5F9; --dark:#0F172A;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>--success:#10B981; --warning:#F59E0B; --danger:#EF4444;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>--danger-light:rgba(239,68,68,0.2);</p>
-<p class="p1">}</p>
-<p class="p1">*{box-sizing:border-box}</p>
-<p class="p1">body{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin:0; background:var(--bg); color:var(--text);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font:18px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Text",Roboto,Arial,sans-serif;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:32px 16px; display:flex; justify-content:center;</p>
-<p class="p1">}</p>
-<p class="p1">.wrap{width:100%; max-width:900px;}</p>
-<p class="p1">header{text-align:center; margin-bottom:32px;}</p>
-<p class="p1">h1{margin:0 0 12px; font-size:40px; font-weight:700;}</p>
-<p class="p1">.sub{margin:0; color:var(--muted); font-size:18px;}</p>
-<p class="p1">.card{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--surface); border:1px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-lg); box-shadow:var(--shadow);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:28px; margin-bottom:28px;</p>
-<p class="p1">}</p>
-<p class="p1">h2{margin-top:0; font-size:24px; color:var(--text);}</p>
-<p class="p1">h3{margin-top:20px; margin-bottom:12px; font-size:20px; color:var(--text);}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Вопросы */</p>
-<p class="p1">.question-block{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:16px 0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-bottom:1px solid var(--border);</p>
-<p class="p1">}</p>
-<p class="p1">.question-block:last-child{border-bottom:none;}</p>
-<p class="p1">.question-text{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:17px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom:12px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--text);</p>
-<p class="p1">}</p>
-<p class="p1">.question-num{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-right:8px;</p>
-<p class="p1">}</p>
-<p class="p1">.options{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:12px;</p>
-<p class="p1">}</p>
-<p class="p1">.option-btn{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex:1;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:12px 16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:2px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>cursor:pointer;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:500;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transition:all 0.2s;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-align:center;</p>
-<p class="p1">}</p>
-<p class="p1">.option-btn:hover{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-color:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:rgba(37,99,235,0.05);</p>
-<p class="p1">}</p>
-<p class="p1">.option-btn.selected{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-color:var(--primary);</p>
-<p class="p1">}</p>
-<p class="p1">.option-btn.yes{border-color:#10B981;}</p>
-<p class="p1">.option-btn.yes:hover{background:rgba(16,185,129,0.1);}</p>
-<p class="p1">.option-btn.yes.selected{background:#10B981; border-color:#10B981;}</p>
-<p class="p1">.option-btn.unknown{border-color:#F59E0B;}</p>
-<p class="p1">.option-btn.unknown:hover{background:rgba(245,158,11,0.1);}</p>
-<p class="p1">.option-btn.unknown.selected{background:#F59E0B; border-color:#F59E0B;}</p>
-<p class="p1">.option-btn.no{border-color:#EF4444;}</p>
-<p class="p1">.option-btn.no:hover{background:rgba(239,68,68,0.1);}</p>
-<p class="p1">.option-btn.no.selected{background:#EF4444; border-color:#EF4444;}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Уведомление */</p>
-<p class="p1">.alert{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:#FEF2F2;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:1px solid #FECACA;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#991B1B;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:12px 16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:none;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:15px;</p>
-<p class="p1">}</p>
-<p class="p1">.alert.show{display:block;}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Загрузка */</p>
-<p class="p1">.loading{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-align:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:40px 0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:none;</p>
-<p class="p1">}</p>
-<p class="p1">.loading.show{display:block;}</p>
-<p class="p1">.spinner{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width:40px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:40px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin:0 auto;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:3px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-top:3px solid var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:50%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>animation:spin 0.8s linear infinite;</p>
-<p class="p1">}</p>
-<p class="p1">@keyframes spin{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>0%{transform:rotate(0deg);}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>100%{transform:rotate(360deg);}</p>
-<p class="p1">}</p>
-<p class="p1">.loading-text{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--muted);</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Профиль с блоками */</p>
-<p class="p1">.profile-blocks{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex-direction:column;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:20px;</p>
-<p class="p1">}</p>
-<p class="p1">.profile-block{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:grid;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>grid-template-columns:1fr 1fr;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--gray);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1">}</p>
-<p class="p1">@media(max-width:768px){</p>
-<p class="p1"><span class="Apple-converted-space">  </span>.profile-block{grid-template-columns:1fr;}</p>
-<p class="p1">}</p>
-<p class="p1">.block-title{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>grid-column:1/-1;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:600;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom:8px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding-bottom:8px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-bottom:2px solid var(--primary);</p>
-<p class="p1">}</p>
-<p class="p1">.block-strength, .block-weakness{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:8px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>min-height:80px;</p>
-<p class="p1">}</p>
-<p class="p1">.block-strength{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-left:3px solid var(--success);</p>
-<p class="p1">}</p>
-<p class="p1">.block-weakness{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-left:3px solid var(--warning);</p>
-<p class="p1">}</p>
-<p class="p1">.block-label{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:12px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-transform:uppercase;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>letter-spacing:0.5px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom:8px;</p>
-<p class="p1">}</p>
-<p class="p1">.block-content{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:14px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>line-height:1.5;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--text);</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Колесо баланса с ползунками */</p>
-<p class="p1">.wheel-section{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:grid;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>grid-template-columns:1fr 1.2fr;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:30px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:center;</p>
-<p class="p1">}</p>
-<p class="p1">@media(max-width:768px){</p>
-<p class="p1"><span class="Apple-converted-space">  </span>.wheel-section{grid-template-columns:1fr;}</p>
-<p class="p1">}</p>
-<p class="p1">.wheel-controls{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex-direction:column;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:16px;</p>
-<p class="p1">}</p>
-<p class="p1">.slider-group{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:12px;</p>
-<p class="p1">}</p>
-<p class="p1">.slider-label{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:14px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>min-width:140px;</p>
-<p class="p1">}</p>
-<p class="p1">.slider-label.danger{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--danger);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:600;</p>
-<p class="p1">}</p>
-<p class="p1">.slider{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex:1;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:6px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:3px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>-webkit-appearance:none;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>appearance:none;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>outline:none;</p>
-<p class="p1">}</p>
-<p class="p1">.slider::-webkit-slider-thumb{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>-webkit-appearance:none;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:50%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>cursor:pointer;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>box-shadow:0 2px 4px rgba(0,0,0,0.2);</p>
-<p class="p1">}</p>
-<p class="p1">.slider::-moz-range-thumb{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:50%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>cursor:pointer;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>box-shadow:0 2px 4px rgba(0,0,0,0.2);</p>
-<p class="p1">}</p>
-<p class="p1">.slider-value{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>min-width:45px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-align:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:600;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--primary);</p>
-<p class="p1">}</p>
-<p class="p1">.slider-value.danger{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--danger);</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Улучшенный вертикальный эквалайзер */</p>
-<p class="p1">.values-equalizer{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>justify-content:space-around;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:flex-end;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:320px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:30px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:linear-gradient(180deg, transparent, var(--gray));</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:relative;</p>
-<p class="p1">}</p>
-<p class="p1">/* Шкала на фоне */</p>
-<p class="p1">.values-equalizer::before{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content:'';</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:absolute;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>top:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>left:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>right:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>bottom:100px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:repeating-linear-gradient(</p>
-<p class="p1"><span class="Apple-converted-space">    </span>0deg,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>var(--border) 0,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>var(--border) 1px,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>transparent 1px,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>transparent 20%</p>
-<p class="p1"><span class="Apple-converted-space">  </span>);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>opacity:0.3;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>pointer-events:none;</p>
-<p class="p1">}</p>
-<p class="p1">/* Метки шкалы */</p>
-<p class="p1">.scale-marks{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:absolute;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>left:0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>top:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>bottom:100px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width:15px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex-direction:column;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>justify-content:space-between;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:11px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--muted);</p>
-<p class="p1">}</p>
-<p class="p1">.scale-mark{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:center;</p>
-<p class="p1">}</p>
-<p class="p1">.eq-column{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex-direction:column;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width:100px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:100%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:relative;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>z-index:1;</p>
-<p class="p1">}</p>
-<p class="p1">.eq-bar-container{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex:1;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width:80px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:relative;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:flex-end;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom:10px;</p>
-<p class="p1">}</p>
-<p class="p1">.eq-bar-bg{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:absolute;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>bottom:0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width:100%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:100%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:linear-gradient(180deg,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>rgba(37,99,235,0.05) 0%,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>rgba(37,99,235,0.1) 100%</p>
-<p class="p1"><span class="Apple-converted-space">  </span>);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:1px solid rgba(37,99,235,0.2);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:6px;</p>
-<p class="p1">}</p>
-<p class="p1">.eq-bar{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width:100%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:linear-gradient(180deg, #2563EB, #1D4ED8);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:6px 6px 0 0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transition:height 0.3s ease;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:relative;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>min-height:10px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:flex-start;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>justify-content:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding-top:8px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>z-index:2;</p>
-<p class="p1">}</p>
-<p class="p1">.eq-value{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:700;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-shadow:0 1px 2px rgba(0,0,0,0.2);</p>
-<p class="p1">}</p>
-<p class="p1">.eq-controls{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:10px;</p>
-<p class="p1">}</p>
-<p class="p1">.eq-btn{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width:32px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:32px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:2px solid var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:8px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>cursor:pointer;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>justify-content:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:700;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transition:all 0.2s;</p>
-<p class="p1">}</p>
-<p class="p1">.eq-btn:hover{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transform:scale(1.1);</p>
-<p class="p1">}</p>
-<p class="p1">.eq-btn:active{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transform:scale(0.95);</p>
-<p class="p1">}</p>
-<p class="p1">.eq-label{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:12px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:13px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-align:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--text);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>max-width:90px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>line-height:1.3;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:500;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">canvas{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:block;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:1px solid var(--border);</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Кнопки */</p>
-<p class="p1">.btn{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:14px 28px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:none;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:600;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>cursor:pointer;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transition:all 0.2s;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:inline-block;</p>
-<p class="p1">}</p>
-<p class="p1">.btn:hover{background:var(--primary-hover);}</p>
-<p class="p1">.btn:disabled{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>cursor:not-allowed;</p>
-<p class="p1">}</p>
-<p class="p1">.btn-center{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>justify-content:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:24px;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Прогресс */</p>
-<p class="p1">.progress{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--gray);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:4px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:2px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin:20px 0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>overflow:hidden;</p>
-<p class="p1">}</p>
-<p class="p1">.progress-fill{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:100%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transition:width 0.3s;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:2px;</p>
-<p class="p1">}</p>
-<p class="p1">.progress-text{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-align:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:14px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:8px;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Блок возможностей после курса */</p>
-<p class="p1">.opportunities-section{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--dark);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:relative;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>overflow:hidden;</p>
-<p class="p1">}</p>
-<p class="p1">.opportunities-title{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff !important;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-align:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:28px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom:40px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:relative;</p>
-<p class="p1">}</p>
-<p class="p1">.opportunities-grid{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:grid;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:relative;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>z-index:1;</p>
-<p class="p1">}</p>
-<p class="p1">.opportunity-card{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:rgba(255,255,255,0.05);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:1px solid rgba(255,255,255,0.1);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:24px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transition:all 0.3s ease;</p>
-<p class="p1">}</p>
-<p class="p1">.opportunity-card:hover{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transform:translateY(-3px);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:rgba(255,255,255,0.08);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-color:rgba(255,255,255,0.2);</p>
-<p class="p1">}</p>
-<p class="p1">.opportunity-heading{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:18px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:600;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin:0 0 16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding-bottom:8px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-bottom:1px solid rgba(255,255,255,0.2);</p>
-<p class="p1">}</p>
-<p class="p1">.opportunity-list{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin:0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding-left:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:14px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>line-height:1.8;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:rgba(255,255,255,0.9);</p>
-<p class="p1">}</p>
-<p class="p1">.opportunity-list li{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom:8px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position:relative;</p>
-<p class="p1">}</p>
-<p class="p1">.opportunity-list li::marker{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--primary);</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Блок с бонусами */</p>
-<p class="p1">.bonuses-section{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin:20px 0 30px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:linear-gradient(135deg, rgba(37,99,235,0.05), rgba(16,185,129,0.05));</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:1px solid rgba(37,99,235,0.2);</p>
-<p class="p1">}</p>
-<p class="p1">.bonuses-toggle{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin:0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>line-height:1.6;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>cursor:pointer;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--text);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transition:color 0.2s;</p>
-<p class="p1">}</p>
-<p class="p1">.bonuses-toggle:hover{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--primary);</p>
-<p class="p1">}</p>
-<p class="p1">.toggle-hint{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:14px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-decoration:underline;</p>
-<p class="p1">}</p>
-<p class="p1">.bonuses-content{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>animation:slideDown 0.3s ease;</p>
-<p class="p1">}</p>
-<p class="p1">@keyframes slideDown{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>from{opacity:0; transform:translateY(-10px);}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>to{opacity:1; transform:translateY(0);}</p>
-<p class="p1">}</p>
-<p class="p1">.bonuses-list{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex-direction:column;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:12px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom:20px;</p>
-<p class="p1">}</p>
-<p class="p1">.bonus-item{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:flex-start;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:12px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:12px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:8px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-left:3px solid var(--success);</p>
-<p class="p1">}</p>
-<p class="p1">.bonus-number{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>min-width:28px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:28px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--success);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:50%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>justify-content:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:600;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:14px;</p>
-<p class="p1">}</p>
-<p class="p1">.bonus-text{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>flex:1;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:15px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>line-height:1.5;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--text);</p>
-<p class="p1">}</p>
-<p class="p1">.btn-hide-bonuses{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:10px 20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:none;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:14px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:500;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>cursor:pointer;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transition:all 0.2s;</p>
-<p class="p1">}</p>
-<p class="p1">.btn-hide-bonuses:hover{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--text);</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Калькулятор дохода */</p>
-<p class="p1">.field{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom:14px;</p>
-<p class="p1">}</p>
-<p class="p1">.field label{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:block;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:600;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom:6px;</p>
-<p class="p1">}</p>
-<p class="p1">.field input[type=number],<span class="Apple-converted-space"> </span></p>
-<p class="p1">.field select,<span class="Apple-converted-space"> </span></p>
-<p class="p1">select{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width:100%;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>height:52px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:0 16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:1px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:16px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-family:inherit;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:#fff;</p>
-<p class="p1">}</p>
-<p class="p1">.skills-grid{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:grid;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>grid-template-columns:repeat(2,1fr);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap:12px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:16px;</p>
-<p class="p1">}</p>
-<p class="p1">.skill{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--gray);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:1px solid var(--border);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:14px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-align:center;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>cursor:pointer;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transition:all 0.2s;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:15px;</p>
-<p class="p1">}</p>
-<p class="p1">.skill:hover{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:rgba(37,99,235,0.1);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-color:var(--primary);</p>
-<p class="p1">}</p>
-<p class="p1">.skill.active{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--primary);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-color:var(--primary-hover);</p>
-<p class="p1">}</p>
-<p class="p1">.final-block{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--dark);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-lg);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:40px 28px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-align:center;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:28px;</p>
-<p class="p1">}</p>
-<p class="p1">.final-title{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:18px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-bottom:16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>opacity:0.9;</p>
-<p class="p1">}</p>
-<p class="p1">.final-income{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:44px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:700;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>letter-spacing:-0.02em;</p>
-<p class="p1">}</p>
-<p class="p1">.notice{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin:40px auto;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>max-width:900px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:20px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:#F1F5F9;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:1px solid var(--border);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:15px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-align:center;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Анимации */</p>
-<p class="p1">@keyframes fadeIn{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>from{opacity:0; transform:translateY(10px);}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>to{opacity:1; transform:translateY(0);}</p>
-<p class="p1">}</p>
-<p class="p1">.fade-in{animation:fadeIn 0.4s ease;}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Подсказка для менеджера */</p>
-<p class="p1">.manager-hint{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:rgba(37,99,235,0.1);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-left:3px solid var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:12px 16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:16px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:14px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--primary);</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">/* Кнопка скачивания */</p>
-<p class="p1">.download-section{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>text-align:center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin:40px auto;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>max-width:900px;</p>
-<p class="p1">}</p>
-<p class="p1">.btn-download{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>padding:18px 40px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--primary);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:#fff;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border:none;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius:var(--radius-md);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:18px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight:600;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>cursor:pointer;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transition:all 0.2s;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display:inline-block;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>box-shadow:0 4px 12px rgba(37,99,235,0.3);</p>
-<p class="p1">}</p>
-<p class="p1">.btn-download:hover{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background:var(--primary-hover);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transform:translateY(-2px);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>box-shadow:0 6px 20px rgba(37,99,235,0.4);</p>
-<p class="p1">}</p>
-<p class="p1">.btn-download:active{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>transform:translateY(0);</p>
-<p class="p1">}</p>
-<p class="p1">.download-hint{</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin-top:12px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size:14px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color:var(--muted);</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">footer{text-align:center; color:var(--muted); font-size:14px; margin-top:40px}</p>
-<p class="p1">&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1">&lt;div class="wrap"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;header&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h1&gt;Интерактивная консультация&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;p class="sub"&gt;Ответьте на вопросы и получите персональный профиль&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/header&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Блок вопросов --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;section class="card" id="questionsSection"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h2&gt;Ответьте на вопросы о себе&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="progress"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="progress-fill" id="progressBar" style="width:0%"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="progress-text"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>Вопрос &lt;span id="currentQ"&gt;0&lt;/span&gt; из &lt;span id="totalQ"&gt;10&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="questionsContainer"&gt;&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="alert" id="alertMessage"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>⚠️ Пожалуйста, ответьте на все вопросы для получения результатов</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="btn-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="btn" id="showResults" onclick="tryCalculateResults()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>Получить результаты</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="loading" id="loadingSection"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="spinner"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="loading-text"&gt;Анализируем ваши ответы...&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Блок результатов --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="resultsSection" style="display:none"&gt;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Профиль с блоками --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="card fade-in"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;Ваш профиль&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="profile-blocks" id="profileBlocks"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Колесо баланса --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="card fade-in"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;Колесо баланса жизни&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="wheel-section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="wheel-controls"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div id="wheelSliders"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;canvas id="wheelCanvas" width="400" height="400"&gt;&lt;/canvas&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Ценности --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="card fade-in"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;Ваши ценности&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="values-equalizer" id="valuesEqualizer"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="scale-marks"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="scale-mark"&gt;5&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="scale-mark"&gt;4&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="scale-mark"&gt;3&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="scale-mark"&gt;2&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="scale-mark"&gt;1&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Возможности после курса --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="card fade-in opportunities-section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2 class="opportunities-title"&gt;После окончания курса вы сможете помогать клиентам&lt;/h2&gt;</p>
-<p class="p2"><span class="Apple-converted-space">      </span></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="opportunities-grid"&gt;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="opportunity-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;h3 class="opportunity-heading"&gt;Семейные кризисы и конфликты&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul class="opportunity-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Восстанавливать отношения после измен и предательств&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Выводить пары из кризиса 3, 7, 15 лет совместной жизни&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Работать с разводом - помогать принять решение или сохранить семью&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Трансформировать токсичные отношения в здоровые&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Налаживать отношения между поколениями&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="opportunity-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;h3 class="opportunity-heading"&gt;Детско-родительские отношения&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul class="opportunity-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Корректировать поведенческие проблемы детей и подростков&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Помогать родителям найти подход к «трудному» ребенку&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Консультировать по вопросам воспитания без криков и наказаний&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Восстанавливать контакт с подростками в период бунта&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Помогать семьям с приемными детьми&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="opportunity-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;h3 class="opportunity-heading"&gt;Проблемы в паре&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul class="opportunity-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Возвращать страсть и близость в длительные отношения&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Работать с ревностью и недоверием&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Помогать парам научиться слышать друг друга&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Консультировать по вопросам сексуальной несовместимости&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Готовить пары к браку и родительству&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Восстанавливать отношения после расставания&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="opportunity-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;h3 class="opportunity-heading"&gt;Семейные сценарии&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul class="opportunity-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Работать с «синдромом годовщины» и повторяющимися событиями&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Освобождать от груза семейных тайн и невысказанного&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Помогать найти ресурс и силу в истории рода&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="opportunity-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;h3 class="opportunity-heading"&gt;Личностные кризисы&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul class="opportunity-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Помогать в поиске предназначения и смысла жизни&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Работать с кризисом среднего возраста&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Консультировать при потере работы или смене карьеры&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Поддерживать в период горя и утраты близких&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Помогать выйти из созависимых отношений&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="opportunity-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;h3 class="opportunity-heading"&gt;Работа с эмоциями&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul class="opportunity-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Работать с тревожными состояниями&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Консультировать при эмоциональном выгорании&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Трансформировать обиды и непрощение&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Работать с чувством вины и стыда&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="opportunity-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;h3 class="opportunity-heading"&gt;Жизненные переходы&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul class="opportunity-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Консультировать беременных и готовящихся к родительству&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Помогать адаптироваться после рождения ребенка&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Помогать принять старение родителей&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="opportunity-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;h3 class="opportunity-heading"&gt;Запросы бизнеса&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul class="opportunity-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Консультировать по вопросам баланса работа-семья&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Помогать парам предпринимателей в семейном бизнесе&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Работать с конфликтами из-за разницы в доходах&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;Консультировать при финансовых кризисах&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Калькулятор дохода --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="card fade-in"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;Калькулятор дохода&lt;/h2&gt;</p>
-<p class="p2"><span class="Apple-converted-space">      </span></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;!-- Блок с бонусами --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="bonuses-section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="bonuses-toggle" onclick="toggleBonuses()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>Чтобы поиск клиентов был проще, мы подготовили для вас готовые материалы и бонусы для продвижения<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="toggle-hint"&gt;(нажмите, чтобы открыть подробности)&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/p&gt;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bonuses-content" id="bonusesContent" style="display:none;"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="bonuses-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bonus-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-number"&gt;1&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-text"&gt;Матрица контента на 30 дней&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bonus-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-number"&gt;2&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-text"&gt;Генератор заголовков для соцсетей&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bonus-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-number"&gt;3&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-text"&gt;Генератор постов-каруселей&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bonus-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-number"&gt;4&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-text"&gt;20 готовых постов + 10 сценариев Reels + 20 готовых постов-каруселей (Измените имя и фото - и вот готовый пост)&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bonus-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-number"&gt;5&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-text"&gt;Личный сайт психолога под ключ&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bonus-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-number"&gt;6&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-text"&gt;Профессиональная нейро-фотосессия&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bonus-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-number"&gt;7&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;span class="bonus-text"&gt;Шаблон оформления Telegram канала&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;button class="btn-hide-bonuses" onclick="toggleBonuses()"&gt;Скрыть бонусы&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">      </span></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="field"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;label&gt;Ваш уровень:&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;select id="level" onchange="calcIncomeNew()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value="3000"&gt;Новичок — 3000₽/час&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value="6000"&gt;Средний — 6000₽/час&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;option value="10000"&gt;Профи — 10000₽/час&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/select&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">      </span></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="field"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;label&gt;Сколько дней в неделю вы планируете работать?&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="daysPerWeek" value="5" min="1" max="7" oninput="calcIncomeNew()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style="margin-top:6px; color:var(--muted); font-size:15px;"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>Это примерно &lt;span id="daysPerMonth"&gt;20&lt;/span&gt; рабочих дней в месяц</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">      </span></p>
-<p class="p2"><span class="Apple-converted-space">      </span></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="field"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;label&gt;Сколько консультаций в день вы хотите проводить?&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="number" id="consultations" value="4" oninput="calcIncomeNew()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h3&gt;Дополнительные навыки&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="skills-grid"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="skill"&gt;Парные консультации&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="skill"&gt;Групповые программы&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="skill"&gt;Повышение квалификации&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="skill"&gt;Рекомендации от клиентов&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="skill"&gt;Активное ведение соц. сетей&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="skill"&gt;Нишевание&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;p style="color:var(--muted);margin-top:10px;"&gt;Каждый навык +10%&lt;/p&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="final-block"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="final-title"&gt;Расчётный заработок&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="final-income"&gt;&lt;span id="finalIncomeCalc"&gt;0&lt;/span&gt; ₽&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="notice"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>Все расчёты произведены на основе введённых данных и не являются публичной офертой.&lt;br&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>При перезагрузке страницы данные сбрасываются — если результат важен, сохраните его скриншотом или в заметках.</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Кнопка скачивания результатов --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="download-section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="btn-download" onclick="downloadResults()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>📥 Скачать результаты</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;p class="download-hint"&gt;Сохранить все ваши ответы и результаты в файл&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;footer&gt;© 2025 Интерактивная консультация. Все данные остаются у вас.&lt;/footer&gt;</p>
-<p class="p1">&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;script&gt;</p>
-<p class="p1">// Данные вопросов и логика</p>
-<p class="p1">const questionsData = [</p>
-<p class="p1"><span class="Apple-converted-space">  </span>{text: "Мне легко ставить цели и идти к ним", id: 1},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>{text: "Я обычно довожу начатое до конца", id: 2},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>{text: "Я понимаю, куда уходят мои деньги", id: 3},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>{text: "Я уверенно говорю о деньгах и своей ценности", id: 4},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>{text: "Я чувствую, что занимаюсь делом, которое мне важно", id: 5},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>{text: "У меня есть желание и энергия развиваться дальше", id: 6},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>{text: "Мне легко общаться и находить общий язык с людьми", id: 7},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>{text: "Я умею спокойно решать конфликты и сложные ситуации", id: 8},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>{text: "Я нахожу время и для работы, и для отдыха", id: 9},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>{text: "Я открыта новым впечатлениям и пробую что-то новое", id: 10}</p>
-<p class="p1">];</p>
-<p class="p2"><br></p>
-<p class="p1">// Интерпретации для каждого вопроса</p>
-<p class="p1">const interpretations = {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>1: {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>yes: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Умеете видеть конечную точку, держите фокус на важном",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Ставите слишком много целей одновременно"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>no: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Сфера целеполагания требует внимания",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Плывёте по течению без направления"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>2: {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>yes: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Надёжность и последовательность",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Доделываете даже то, что потеряло смысл"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>no: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Завершение дел требует внимания",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Теряете интерес на середине пути"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>3: {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>yes: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Финансовая осознанность и контроль",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Можете зацикливаться на каждой трате"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>no: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Финансовый учёт требует внимания",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Импульсивные траты на эмоциях"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>4: {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>yes: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Знаете свою стоимость",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Рискуете всё мерить деньгами"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>no: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Денежная уверенность требует внимания",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Работаете за «спасибо»"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>5: {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>yes: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Внутренняя наполненность и смысл",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Забываете про баланс работа-жизнь"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>no: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Поиск своего дела требует внимания",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Работаете на автомате без души"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>6: {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>yes: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Сохраняете жажду роста",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Гонитесь за новыми знаниями"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>no: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Мотивация к развитию требует внимания",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Чувствуете, что потолок достигнут"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>7: {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>yes: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Природная коммуникабельность",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Можете терять себя, подстраиваясь"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>no: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Навыки общения требуют внимания",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Избегаете новых знакомств"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>8: {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>yes: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Эмоциональная устойчивость",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Подавляете свои эмоции ради мира"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>no: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Управление конфликтами требует внимания",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Носите обиды годами"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>9: {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>yes: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Умеете распределять энергию",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Слишком строги к режиму"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>no: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Баланс работы и отдыха требует внимания",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Работаете на износ или прокрастинируете"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>},</p>
-<p class="p1"><span class="Apple-converted-space">  </span>10: {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>yes: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Сохраняете любопытство к жизни",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Распыляетесь на слишком многое"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>no: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>strengths: "Открытость новому требует внимания",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>weaknesses: "Застряли в привычной колее"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p1">};</p>
-<p class="p2"><br></p>
-<p class="p1">// Названия блоков</p>
-<p class="p1">const blockNames = {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>1: "🎯 Работа и цели",</p>
-<p class="p1"><span class="Apple-converted-space">  </span>2: "💰 Финансы",</p>
-<p class="p1"><span class="Apple-converted-space">  </span>3: "✨ Самореализация",</p>
-<p class="p1"><span class="Apple-converted-space">  </span>4: "🤝 Отношения",</p>
-<p class="p1"><span class="Apple-converted-space">  </span>5: "⚖️ Баланс и энергия"</p>
-<p class="p1">};</p>
-<p class="p2"><br></p>
-<p class="p1">// Хранение ответов и данных</p>
-<p class="p1">let answers = {};</p>
-<p class="p1">let wheelData = {};</p>
-<p class="p1">let valuesData = {};</p>
-<p class="p2"><br></p>
-<p class="p1">// Инициализация</p>
-<p class="p1">document.addEventListener('DOMContentLoaded', function() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>renderQuestions();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>updateProgress();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('totalQ').textContent = questionsData.length;</p>
-<p class="p1">});</p>
-<p class="p2"><br></p>
-<p class="p1">// Отрисовка вопросов</p>
-<p class="p1">function renderQuestions() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const container = document.getElementById('questionsContainer');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>container.innerHTML = '';</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>questionsData.forEach((q, index) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const block = document.createElement('div');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>block.className = 'question-block';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>block.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="question-text"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="question-num"&gt;${index + 1}.&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>${q.text}</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="options"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="option-btn yes" onclick="selectAnswer(${q.id}, 'Y', this)"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>Да</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="option-btn unknown" onclick="selectAnswer(${q.id}, 'U', this)"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>Не знаю</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="option-btn no" onclick="selectAnswer(${q.id}, 'N', this)"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>Нет</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>container.appendChild(block);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Выбор ответа</p>
-<p class="p1">function selectAnswer(questionId, answer, button) {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Снимаем выделение с других кнопок</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const parent = button.parentElement;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>parent.querySelectorAll('.option-btn').forEach(btn =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>btn.classList.remove('selected');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Выделяем выбранную кнопку</p>
-<p class="p1"><span class="Apple-converted-space">  </span>button.classList.add('selected');</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Сохраняем ответ</p>
-<p class="p1"><span class="Apple-converted-space">  </span>answers[questionId] = answer;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Обновляем прогресс</p>
-<p class="p1"><span class="Apple-converted-space">  </span>updateProgress();</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Скрываем предупреждение если оно было</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('alertMessage').classList.remove('show');</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Если изменился ответ и результаты уже показаны - обновляем</p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (document.getElementById('resultsSection').style.display !== 'none') {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>recalculateResults();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Обновление прогресса</p>
-<p class="p1">function updateProgress() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const answered = Object.keys(answers).length;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const total = questionsData.length;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const percentage = (answered / total) * 100;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('progressBar').style.width = percentage + '%';</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('currentQ').textContent = answered;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Попытка расчета результатов с проверкой</p>
-<p class="p1">function tryCalculateResults() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const answered = Object.keys(answers).length;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const total = questionsData.length;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (answered &lt; total) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Показываем предупреждение</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('alertMessage').classList.add('show');</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Прокручиваем к первому неотвеченному вопросу</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const firstUnanswered = questionsData.find(q =&gt; !answers[q.id]);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (firstUnanswered) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const questionElement = document.querySelectorAll('.question-block')[questionsData.indexOf(firstUnanswered)];</p>
-<p class="p1"><span class="Apple-converted-space">      </span>questionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Скрываем предупреждение</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('alertMessage').classList.remove('show');</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Показываем загрузку</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const loadingSection = document.getElementById('loadingSection');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>loadingSection.classList.add('show');</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Имитируем загрузку и затем показываем результаты</p>
-<p class="p1"><span class="Apple-converted-space">  </span>setTimeout(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>loadingSection.classList.remove('show');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>calculateResults();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}, 1500);</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Расчет результатов</p>
-<p class="p1">function calculateResults() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Показываем результаты</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('resultsSection').style.display = 'block';</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Расчет профиля по блокам</p>
-<p class="p1"><span class="Apple-converted-space">  </span>displayProfileBlocks();</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Расчет колеса баланса</p>
-<p class="p1"><span class="Apple-converted-space">  </span>calculateWheel();</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Расчет ценностей</p>
-<p class="p1"><span class="Apple-converted-space">  </span>calculateValues();</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Инициализация калькулятора дохода</p>
-<p class="p1"><span class="Apple-converted-space">  </span>calcIncomeNew();</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Прокрутка к результатам</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Пересчет результатов при изменении ответов</p>
-<p class="p1">function recalculateResults() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>displayProfileBlocks();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>calculateWheel();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>calculateValues();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>calcIncomeNew();</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Отображение профиля по блокам</p>
-<p class="p1">function displayProfileBlocks() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const container = document.getElementById('profileBlocks');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>container.innerHTML = '';</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Группируем вопросы по блокам</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const blocks = [</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{id: 1, questions: [1, 2], name: blockNames[1]},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{id: 2, questions: [3, 4], name: blockNames[2]},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{id: 3, questions: [5, 6], name: blockNames[3]},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{id: 4, questions: [7, 8], name: blockNames[4]},</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{id: 5, questions: [9, 10], name: blockNames[5]}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>];</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>blocks.forEach(block =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const blockDiv = document.createElement('div');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>blockDiv.className = 'profile-block';</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let blockStrengths = [];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let blockWeaknesses = [];</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>block.questions.forEach(qId =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const answer = answers[qId] || 'U';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const interp = interpretations[qId];</p>
-<p class="p2"><span class="Apple-converted-space">      </span></p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (answer === 'Y' &amp;&amp; interp.yes) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>blockStrengths.push(interp.yes.strengths);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>blockWeaknesses.push(interp.yes.weaknesses);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>} else if (answer === 'N' &amp;&amp; interp.no) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>blockStrengths.push(interp.no.strengths);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>blockWeaknesses.push(interp.no.weaknesses);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>blockStrengths.push("Требует дополнительного изучения");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>blockWeaknesses.push("Неопределённость может создавать напряжение");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>});</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>blockDiv.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="block-title"&gt;${block.name}&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="block-strength"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="block-label"&gt;Сильные стороны&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="block-content"&gt;${blockStrengths.join('. ')}&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="block-weakness"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="block-label"&gt;Зоны развития&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="block-content"&gt;${blockWeaknesses.join('. ')}&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>`;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>container.appendChild(blockDiv);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Расчет колеса баланса с 10-балльной шкалой</p>
-<p class="p1">function calculateWheel() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Матрица комбинаций для расчета баллов (масштабируем до 7)</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const scoreMatrix = {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'YY': 7, 'YU': 5, 'UY': 5, 'YN': 4,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'NY': 4, 'UU': 3, 'UN': 3, 'NU': 3, 'NN': 2</p>
-<p class="p1"><span class="Apple-converted-space">  </span>};</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Сферы и соответствующие вопросы</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const spheres = {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Работа/Цели': [1, 2],</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Финансы': [3, 4],</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Самореализация': [5, 6],</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Отношения': [7, 8],</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Баланс/Энергия': [9, 10]</p>
-<p class="p1"><span class="Apple-converted-space">  </span>};</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Рассчитываем только если еще не было расчета</p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (Object.keys(wheelData).length === 0) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>for (let sphere in spheres) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const questions = spheres[sphere];</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const a1 = answers[questions[0]] || 'U';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const a2 = answers[questions[1]] || 'U';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const combo = a1 + a2;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>// Округляем до целого числа</p>
-<p class="p1"><span class="Apple-converted-space">      </span>wheelData[sphere] = Math.round(scoreMatrix[combo] || 3);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Создаем ползунки для управления</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const slidersContainer = document.getElementById('wheelSliders');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>slidersContainer.innerHTML = '';</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>for (let sphere in wheelData) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const value = wheelData[sphere];</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const sliderGroup = document.createElement('div');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>sliderGroup.className = 'slider-group';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>sliderGroup.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="slider-label"&gt;${sphere}&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;input type="range" class="slider" min="0" max="10" step="1"<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">             </span>value="${value}"<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">             </span>oninput="updateWheelValue('${sphere}', this.value)"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="slider-value"&gt;${value}/10&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>slidersContainer.appendChild(sliderGroup);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Рисуем колесо</p>
-<p class="p1"><span class="Apple-converted-space">  </span>drawWheel();</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Обновление значения колеса</p>
-<p class="p1">function updateWheelValue(sphere, value) {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>wheelData[sphere] = parseInt(value);</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Обновляем отображение значения</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const sliderGroups = document.querySelectorAll('.slider-group');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>sliderGroups.forEach(group =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (group.querySelector('.slider-label').textContent === sphere) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const valueSpan = group.querySelector('.slider-value');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>valueSpan.textContent = value + '/10';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Перерисовываем колесо</p>
-<p class="p1"><span class="Apple-converted-space">  </span>drawWheel();</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Рисование колеса баланса</p>
-<p class="p1">function drawWheel() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const canvas = document.getElementById('wheelCanvas');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const ctx = canvas.getContext('2d');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const centerX = canvas.width / 2;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const centerY = canvas.height / 2;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const radius = 150;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>ctx.clearRect(0, 0, canvas.width, canvas.height);</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Рисуем сетку для 10 уровней</p>
-<p class="p1"><span class="Apple-converted-space">  </span>ctx.strokeStyle = '#E2E8F0';</p>
-<p class="p1"><span class="Apple-converted-space">  </span>ctx.lineWidth = 1;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>for (let r = 1; r &lt;= 10; r++) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.arc(centerX, centerY, (radius / 10) * r, 0, 2 * Math.PI);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.stroke();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Рисуем оси</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const labels = Object.keys(wheelData);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const angleStep = (2 * Math.PI) / labels.length;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>labels.forEach((label, i) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const angle = -Math.PI / 2 + angleStep * i;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const x = centerX + Math.cos(angle) * radius;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const y = centerY + Math.sin(angle) * radius;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.moveTo(centerX, centerY);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.lineTo(x, y);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.stroke();</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Подписи</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.font = '13px sans-serif';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.fillStyle = '#0F172A';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.textAlign = 'center';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.textBaseline = 'middle';</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const labelX = centerX + Math.cos(angle) * (radius + 30);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const labelY = centerY + Math.sin(angle) * (radius + 30);</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Разбиваем длинные надписи</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const words = label.split('/');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (words.length &gt; 1) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>ctx.fillText(words[0], labelX, labelY - 7);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>ctx.fillText(words[1], labelX, labelY + 7);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>ctx.fillText(label, labelX, labelY);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Рисуем основную фигуру колеса</p>
-<p class="p1"><span class="Apple-converted-space">  </span>ctx.beginPath();</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>labels.forEach((label, i) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const angle = -Math.PI / 2 + angleStep * i;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const value = wheelData[label];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const r = (radius / 10) * value;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const x = centerX + Math.cos(angle) * r;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const y = centerY + Math.sin(angle) * r;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (i === 0) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>ctx.moveTo(x, y);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>ctx.lineTo(x, y);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>ctx.closePath();</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Заливка и обводка - всегда синяя</p>
-<p class="p1"><span class="Apple-converted-space">  </span>ctx.fillStyle = 'rgba(37, 99, 235, 0.3)';</p>
-<p class="p1"><span class="Apple-converted-space">  </span>ctx.strokeStyle = '#2563EB';</p>
-<p class="p1"><span class="Apple-converted-space">  </span>ctx.lineWidth = 2;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>ctx.fill();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>ctx.stroke();</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Рисуем точки на вершинах - все синие</p>
-<p class="p1"><span class="Apple-converted-space">  </span>labels.forEach((label, i) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const angle = -Math.PI / 2 + angleStep * i;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const value = wheelData[label];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const r = (radius / 10) * value;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const x = centerX + Math.cos(angle) * r;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const y = centerY + Math.sin(angle) * r;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.arc(x, y, 4, 0, 2 * Math.PI);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.fillStyle = '#2563EB';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>ctx.fill();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Расчет ценностей с 5-балльной шкалой и округлением</p>
-<p class="p1">function calculateValues() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Получаем баллы сфер из колеса баланса</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const scoreMatrix = {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'YY': 7, 'YU': 5, 'UY': 5, 'YN': 4,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'NY': 4, 'UU': 3, 'UN': 3, 'NU': 3, 'NN': 2</p>
-<p class="p1"><span class="Apple-converted-space">  </span>};</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Расчет баллов сфер</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const sphereScores = {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>work: scoreMatrix[(answers[1] || 'U') + (answers[2] || 'U')] || 3,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>finance: scoreMatrix[(answers[3] || 'U') + (answers[4] || 'U')] || 3,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>realization: scoreMatrix[(answers[5] || 'U') + (answers[6] || 'U')] || 3,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>relations: scoreMatrix[(answers[7] || 'U') + (answers[8] || 'U')] || 3,</p>
-<p class="p1"><span class="Apple-converted-space">    </span>balance: scoreMatrix[(answers[9] || 'U') + (answers[10] || 'U')] || 3</p>
-<p class="p1"><span class="Apple-converted-space">  </span>};</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Расчет ценностей на 5-балльной шкале с округлением до 0.5</p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (Object.keys(valuesData).length === 0) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const roundToHalf = (num) =&gt; Math.round(num * 2) / 2;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>valuesData = {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'Смысл': roundToHalf((sphereScores.realization / 7) * 5),</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'Польза': roundToHalf((sphereScores.relations / 7) * 5),</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'Деньги': roundToHalf((sphereScores.finance / 7) * 5),</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'Свобода': roundToHalf(((sphereScores.balance + sphereScores.work) / 14) * 5),</p>
-<p class="p1"><span class="Apple-converted-space">      </span>'Система': roundToHalf(((sphereScores.work + sphereScores.realization) / 14) * 5)</p>
-<p class="p1"><span class="Apple-converted-space">    </span>};</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Создаем вертикальный эквалайзер</p>
-<p class="p1"><span class="Apple-converted-space">  </span>createValuesEqualizer();</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Создание улучшенного вертикального эквалайзера</p>
-<p class="p1">function createValuesEqualizer() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const container = document.getElementById('valuesEqualizer');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Сохраняем метки шкалы</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const scaleMarks = container.querySelector('.scale-marks');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>container.innerHTML = '';</p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (scaleMarks) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>container.appendChild(scaleMarks);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const fullNames = {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Смысл': 'Смысл и предназначение',</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Польза': 'Польза людям',</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Деньги': 'Деньги без предательства',</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Свобода': 'Автономия и гибкость',</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Система': 'Системность и результат'</p>
-<p class="p1"><span class="Apple-converted-space">  </span>};</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>for (let valueName in valuesData) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const column = document.createElement('div');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>column.className = 'eq-column';</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const value = valuesData[valueName];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const percentage = (value / 5) * 100;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>column.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="eq-bar-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="eq-bar-bg"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="eq-bar" style="height: ${percentage}%" data-value="${valueName}"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="eq-value"&gt;${value}&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="eq-controls"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="eq-btn" onclick="changeValue('${valueName}', -0.5)"&gt;−&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="eq-btn" onclick="changeValue('${valueName}', 0.5)"&gt;+&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="eq-label"&gt;${fullNames[valueName]}&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>`;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>container.appendChild(column);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Изменение значения ценности кнопками</p>
-<p class="p1">function changeValue(valueName, delta) {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let newValue = valuesData[valueName] + delta;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>newValue = Math.max(0, Math.min(5, newValue));</p>
-<p class="p1"><span class="Apple-converted-space">  </span>newValue = Math.round(newValue * 2) / 2; // Округление до 0.5</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>valuesData[valueName] = newValue;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>updateEqualizer();</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Обновление визуализации эквалайзера</p>
-<p class="p1">function updateEqualizer() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>for (let valueName in valuesData) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const value = valuesData[valueName];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const percentage = (value / 5) * 100;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Находим элементы</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const bar = document.querySelector(`.eq-bar[data-value="${valueName}"]`);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const valueSpan = bar.querySelector('.eq-value');</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Обновляем</p>
-<p class="p1"><span class="Apple-converted-space">    </span>bar.style.height = percentage + '%';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>valueSpan.textContent = value;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Генерация рекомендаций (убрана, заменена калькулятором)</p>
-<p class="p2"><br></p>
-<p class="p1">// Калькулятор дохода</p>
-<p class="p1">document.addEventListener('DOMContentLoaded', function() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Инициализация калькулятора после загрузки DOM</p>
-<p class="p1"><span class="Apple-converted-space">  </span>initCalculator();</p>
-<p class="p1">});</p>
-<p class="p2"><br></p>
-<p class="p1">function initCalculator() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const skills = document.querySelectorAll(".skill");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (skills.length &gt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>skills.forEach(s =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>s.addEventListener("click", function(e) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Предотвращаем всплытие события</p>
-<p class="p1"><span class="Apple-converted-space">        </span>e.stopPropagation();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>this.classList.toggle("active");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>calcIncomeNew();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>});</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Первичный расчет</p>
-<p class="p1"><span class="Apple-converted-space">    </span>calcIncomeNew();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">function calcIncomeNew(){</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const levelSelect = document.getElementById("level");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const daysPerWeekInput = document.getElementById("daysPerWeek");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const consultationsInput = document.getElementById("consultations");</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (!levelSelect || !daysPerWeekInput || !consultationsInput) return;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const rate = parseFloat(levelSelect.value) || 3000;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const daysPerWeek = parseInt(daysPerWeekInput.value) || 5;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const consultations = parseInt(consultationsInput.value) || 4;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const daysPerMonth = daysPerWeek * 4; // считаем месяц как 4 недели</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const daysPerMonthSpan = document.getElementById("daysPerMonth");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (daysPerMonthSpan) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>daysPerMonthSpan.innerText = daysPerMonth;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const base = daysPerMonth * consultations * rate;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const activeSkills = document.querySelectorAll(".skill.active").length;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const final = base * (1 + activeSkills * 0.1);</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const finalIncomeElement = document.getElementById("finalIncomeCalc");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (finalIncomeElement) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>finalIncomeElement.innerText = Math.round(final).toLocaleString('ru-RU');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Функция показа/скрытия бонусов</p>
-<p class="p1">function toggleBonuses() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const bonusesContent = document.getElementById('bonusesContent');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (bonusesContent) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (bonusesContent.style.display === 'none') {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>bonusesContent.style.display = 'block';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>bonusesContent.style.display = 'none';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">// Функция скачивания результатов</p>
-<p class="p1">function downloadResults() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Собираем все данные</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const results = {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>date: new Date().toLocaleString('ru-RU'),</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Ответы на вопросы</p>
-<p class="p1"><span class="Apple-converted-space">    </span>questions: questionsData.map(q =&gt; ({</p>
-<p class="p1"><span class="Apple-converted-space">      </span>question: q.text,</p>
-<p class="p1"><span class="Apple-converted-space">      </span>answer: answers[q.id] === 'Y' ? 'Да' : answers[q.id] === 'N' ? 'Нет' : 'Не знаю'</p>
-<p class="p1"><span class="Apple-converted-space">    </span>})),</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Колесо баланса</p>
-<p class="p1"><span class="Apple-converted-space">    </span>wheelBalance: wheelData,</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Ценности</p>
-<p class="p1"><span class="Apple-converted-space">    </span>values: valuesData,</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Калькулятор дохода</p>
-<p class="p1"><span class="Apple-converted-space">    </span>incomeCalculator: {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>level: document.getElementById("level").selectedOptions[0].text,</p>
-<p class="p1"><span class="Apple-converted-space">      </span>daysPerWeek: document.getElementById("daysPerWeek").value,</p>
-<p class="p1"><span class="Apple-converted-space">      </span>consultationsPerDay: document.getElementById("consultations").value,</p>
-<p class="p1"><span class="Apple-converted-space">      </span>activeSkills: Array.from(document.querySelectorAll(".skill.active")).map(s =&gt; s.textContent),</p>
-<p class="p1"><span class="Apple-converted-space">      </span>estimatedIncome: document.getElementById("finalIncomeCalc").textContent</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>};</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Формируем текстовый файл</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let content = "РЕЗУЛЬТАТЫ ИНТЕРАКТИВНОЙ КОНСУЛЬТАЦИИ\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "=====================================\n\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += `Дата прохождения: ${results.date}\n\n`;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "ОТВЕТЫ НА ВОПРОСЫ:\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "------------------\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>results.questions.forEach((q, i) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>content += `${i + 1}. ${q.question}\n`;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>content += ` <span class="Apple-converted-space">  </span>Ответ: ${q.answer}\n\n`;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "\nКОЛЕСО БАЛАНСА ЖИЗНИ:\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "---------------------\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>for (let sphere in results.wheelBalance) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>content += `${sphere}: ${results.wheelBalance[sphere]}/10\n`;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "\nВАШИ ЦЕННОСТИ:\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "---------------\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const fullValueNames = {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Смысл': 'Смысл и предназначение',</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Польза': 'Польза людям',</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Деньги': 'Деньги без предательства',</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Свобода': 'Автономия и гибкость',</p>
-<p class="p1"><span class="Apple-converted-space">    </span>'Система': 'Системность и результат'</p>
-<p class="p1"><span class="Apple-converted-space">  </span>};</p>
-<p class="p1"><span class="Apple-converted-space">  </span>for (let value in results.values) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>content += `${fullValueNames[value]}: ${results.values[value]}/5\n`;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "\nКАЛЬКУЛЯТОР ДОХОДА:\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += " Чтобы поиск клиентов был проще, мы подготовили для вас готовые материалы и бонусы для продвижения\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "-------------------\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += `Уровень: ${results.incomeCalculator.level}\n`;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += `Дней работы в неделю: ${results.incomeCalculator.daysPerWeek}\n`;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += `Консультаций в день: ${results.incomeCalculator.consultationsPerDay}\n`;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (results.incomeCalculator.activeSkills.length &gt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>content += `Дополнительные навыки: ${results.incomeCalculator.activeSkills.join(', ')}\n`;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += `\nРасчётный заработок: ${results.incomeCalculator.estimatedIncome} ₽\n`;</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "\n=====================================\n";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content += "Спасибо за прохождение консультации!\n";</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Создаем и скачиваем файл</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const link = document.createElement('a');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>link.href = URL.createObjectURL(blob);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>link.download = `Консультация_${new Date().toISOString().slice(0,10)}.txt`;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>link.click();</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// Освобождаем память</p>
-<p class="p1"><span class="Apple-converted-space">  </span>URL.revokeObjectURL(link.href);</p>
-<p class="p1">}</p>
-<p class="p1">&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+<div class="wrap">
+  <header>
+    <h1>Интерактивная консультация</h1>
+    <p class="sub">Ответьте на вопросы и получите персональный профиль</p>
+  </header>
+
+  <!-- Блок вопросов -->
+  <section class="card" id="questionsSection">
+    <h2>Ответьте на вопросы о себе</h2>
+    <div class="progress">
+      <div class="progress-fill" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="progress-text">
+      Вопрос <span id="currentQ">0</span> из <span id="totalQ">10</span>
+    </div>
+    
+    <div id="questionsContainer"></div>
+    
+    <div class="alert" id="alertMessage">
+      ⚠️ Пожалуйста, ответьте на все вопросы для получения результатов
+    </div>
+    
+    <div class="btn-center">
+      <button class="btn" id="showResults" onclick="tryCalculateResults()">
+        Получить результаты
+      </button>
+    </div>
+    
+    <div class="loading" id="loadingSection">
+      <div class="spinner"></div>
+      <div class="loading-text">Анализируем ваши ответы...</div>
+    </div>
+  </section>
+
+  <!-- Блок результатов -->
+  <div id="resultsSection" style="display:none">
+    
+    <!-- Профиль с блоками -->
+    <section class="card fade-in">
+      <h2>Ваш профиль</h2>
+      <div class="profile-blocks" id="profileBlocks"></div>
+    </section>
+
+    <!-- Колесо баланса -->
+    <section class="card fade-in">
+      <h2>Колесо баланса жизни</h2>
+      <div class="wheel-section">
+        <div class="wheel-controls">
+          <div id="wheelSliders"></div>
+        </div>
+        <canvas id="wheelCanvas" width="400" height="400"></canvas>
+      </div>
+    </section>
+
+    <!-- Ценности -->
+    <section class="card fade-in">
+      <h2>Ваши ценности</h2>
+      <div class="values-equalizer" id="valuesEqualizer">
+        <div class="scale-marks">
+          <div class="scale-mark">5</div>
+          <div class="scale-mark">4</div>
+          <div class="scale-mark">3</div>
+          <div class="scale-mark">2</div>
+          <div class="scale-mark">1</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Возможности после курса -->
+    <section class="card fade-in opportunities-section">
+      <h2 class="opportunities-title">После окончания курса вы сможете помогать клиентам</h2>
+      
+      <div class="opportunities-grid">
+        
+        <div class="opportunity-card">
+          <h3 class="opportunity-heading">Семейные кризисы и конфликты</h3>
+          <ul class="opportunity-list">
+            <li>Восстанавливать отношения после измен и предательств</li>
+            <li>Выводить пары из кризиса 3, 7, 15 лет совместной жизни</li>
+            <li>Работать с разводом - помогать принять решение или сохранить семью</li>
+            <li>Трансформировать токсичные отношения в здоровые</li>
+            <li>Налаживать отношения между поколениями</li>
+          </ul>
+        </div>
+
+        <div class="opportunity-card">
+          <h3 class="opportunity-heading">Детско-родительские отношения</h3>
+          <ul class="opportunity-list">
+            <li>Корректировать поведенческие проблемы детей и подростков</li>
+            <li>Помогать родителям найти подход к «трудному» ребенку</li>
+            <li>Консультировать по вопросам воспитания без криков и наказаний</li>
+            <li>Восстанавливать контакт с подростками в период бунта</li>
+            <li>Помогать семьям с приемными детьми</li>
+          </ul>
+        </div>
+
+        <div class="opportunity-card">
+          <h3 class="opportunity-heading">Проблемы в паре</h3>
+          <ul class="opportunity-list">
+            <li>Возвращать страсть и близость в длительные отношения</li>
+            <li>Работать с ревностью и недоверием</li>
+            <li>Помогать парам научиться слышать друг друга</li>
+            <li>Консультировать по вопросам сексуальной несовместимости</li>
+            <li>Готовить пары к браку и родительству</li>
+            <li>Восстанавливать отношения после расставания</li>
+          </ul>
+        </div>
+
+        <div class="opportunity-card">
+          <h3 class="opportunity-heading">Семейные сценарии</h3>
+          <ul class="opportunity-list">
+            <li>Работать с «синдромом годовщины» и повторяющимися событиями</li>
+            <li>Освобождать от груза семейных тайн и невысказанного</li>
+            <li>Помогать найти ресурс и силу в истории рода</li>
+          </ul>
+        </div>
+
+        <div class="opportunity-card">
+          <h3 class="opportunity-heading">Личностные кризисы</h3>
+          <ul class="opportunity-list">
+            <li>Помогать в поиске предназначения и смысла жизни</li>
+            <li>Работать с кризисом среднего возраста</li>
+            <li>Консультировать при потере работы или смене карьеры</li>
+            <li>Поддерживать в период горя и утраты близких</li>
+            <li>Помогать выйти из созависимых отношений</li>
+          </ul>
+        </div>
+
+        <div class="opportunity-card">
+          <h3 class="opportunity-heading">Работа с эмоциями</h3>
+          <ul class="opportunity-list">
+            <li>Работать с тревожными состояниями</li>
+            <li>Консультировать при эмоциональном выгорании</li>
+            <li>Трансформировать обиды и непрощение</li>
+            <li>Работать с чувством вины и стыда</li>
+          </ul>
+        </div>
+
+        <div class="opportunity-card">
+          <h3 class="opportunity-heading">Жизненные переходы</h3>
+          <ul class="opportunity-list">
+            <li>Консультировать беременных и готовящихся к родительству</li>
+            <li>Помогать адаптироваться после рождения ребенка</li>
+            <li>Помогать принять старение родителей</li>
+          </ul>
+        </div>
+
+        <div class="opportunity-card">
+          <h3 class="opportunity-heading">Запросы бизнеса</h3>
+          <ul class="opportunity-list">
+            <li>Консультировать по вопросам баланса работа-семья</li>
+            <li>Помогать парам предпринимателей в семейном бизнесе</li>
+            <li>Работать с конфликтами из-за разницы в доходах</li>
+            <li>Консультировать при финансовых кризисах</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Калькулятор дохода -->
+    <section class="card fade-in">
+      <h2>Калькулятор дохода</h2>
+      
+      <!-- Блок с бонусами -->
+      <div class="bonuses-section">
+        <p class="bonuses-toggle" onclick="toggleBonuses()">
+          Чтобы поиск клиентов был проще, мы подготовили для вас готовые материалы и бонусы для продвижения 
+          <span class="toggle-hint">(нажмите, чтобы открыть подробности)</span>
+        </p>
+        
+        <div class="bonuses-content" id="bonusesContent" style="display:none;">
+          <div class="bonuses-list">
+            <div class="bonus-item">
+              <span class="bonus-number">1</span>
+              <span class="bonus-text">Матрица контента на 30 дней</span>
+            </div>
+            <div class="bonus-item">
+              <span class="bonus-number">2</span>
+              <span class="bonus-text">Генератор заголовков для соцсетей</span>
+            </div>
+            <div class="bonus-item">
+              <span class="bonus-number">3</span>
+              <span class="bonus-text">Генератор постов-каруселей</span>
+            </div>
+            <div class="bonus-item">
+              <span class="bonus-number">4</span>
+              <span class="bonus-text">20 готовых постов + 10 сценариев Reels + 20 готовых постов-каруселей (Измените имя и фото - и вот готовый пост)</span>
+            </div>
+            <div class="bonus-item">
+              <span class="bonus-number">5</span>
+              <span class="bonus-text">Личный сайт психолога под ключ</span>
+            </div>
+            <div class="bonus-item">
+              <span class="bonus-number">6</span>
+              <span class="bonus-text">Профессиональная нейро-фотосессия</span>
+            </div>
+            <div class="bonus-item">
+              <span class="bonus-number">7</span>
+              <span class="bonus-text">Шаблон оформления Telegram канала</span>
+            </div>
+          </div>
+          <button class="btn-hide-bonuses" onclick="toggleBonuses()">Скрыть бонусы</button>
+        </div>
+      </div>
+      
+      <div class="field">
+        <label>Ваш уровень:</label>
+        <select id="level" onchange="calcIncomeNew()">
+          <option value="3000">Новичок — 3000₽/час</option>
+          <option value="6000">Средний — 6000₽/час</option>
+          <option value="10000">Профи — 10000₽/час</option>
+        </select>
+      </div>
+      
+      <div class="field">
+        <label>Сколько дней в неделю вы планируете работать?</label>
+        <input type="number" id="daysPerWeek" value="5" min="1" max="7" oninput="calcIncomeNew()">
+        <div style="margin-top:6px; color:var(--muted); font-size:15px;">
+          Это примерно <span id="daysPerMonth">20</span> рабочих дней в месяц
+        </div>
+      </div>
+      
+      
+      <div class="field">
+        <label>Сколько консультаций в день вы хотите проводить?</label>
+        <input type="number" id="consultations" value="4" oninput="calcIncomeNew()">
+      </div>
+  
+      <h3>Дополнительные навыки</h3>
+      <div class="skills-grid">
+        <div class="skill">Парные консультации</div>
+        <div class="skill">Групповые программы</div>
+        <div class="skill">Повышение квалификации</div>
+        <div class="skill">Рекомендации от клиентов</div>
+        <div class="skill">Активное ведение соц. сетей</div>
+        <div class="skill">Нишевание</div>
+      </div>
+      <p style="color:var(--muted);margin-top:10px;">Каждый навык +10%</p>
+
+      <div class="final-block">
+        <div class="final-title">Расчётный заработок</div>
+        <div class="final-income"><span id="finalIncomeCalc">0</span> ₽</div>
+      </div>
+    </section>
+
+    <div class="notice">
+      Все расчёты произведены на основе введённых данных и не являются публичной офертой.<br>
+      При перезагрузке страницы данные сбрасываются — если результат важен, сохраните его скриншотом или в заметках.
+    </div>
+    
+    <!-- Кнопка скачивания результатов -->
+    <div class="download-section">
+      <button class="btn-download" onclick="downloadResults()">
+        📥 Скачать результаты
+      </button>
+      <p class="download-hint">Сохранить все ваши ответы и результаты в файл</p>
+    </div>
+  </div>
+
+  <footer>© 2025 Интерактивная консультация. Все данные остаются у вас.</footer>
+</div>
+
+<script>
+// Данные вопросов и логика
+const questionsData = [
+  {text: "Мне легко ставить цели и идти к ним", id: 1},
+  {text: "Я обычно довожу начатое до конца", id: 2},
+  {text: "Я понимаю, куда уходят мои деньги", id: 3},
+  {text: "Я уверенно говорю о деньгах и своей ценности", id: 4},
+  {text: "Я чувствую, что занимаюсь делом, которое мне важно", id: 5},
+  {text: "У меня есть желание и энергия развиваться дальше", id: 6},
+  {text: "Мне легко общаться и находить общий язык с людьми", id: 7},
+  {text: "Я умею спокойно решать конфликты и сложные ситуации", id: 8},
+  {text: "Я нахожу время и для работы, и для отдыха", id: 9},
+  {text: "Я открыта новым впечатлениям и пробую что-то новое", id: 10}
+];
+
+// Интерпретации для каждого вопроса
+const interpretations = {
+  1: {
+    yes: {
+      strengths: "Умеете видеть конечную точку, держите фокус на важном",
+      weaknesses: "Ставите слишком много целей одновременно"
+    },
+    no: {
+      strengths: "Сфера целеполагания требует внимания",
+      weaknesses: "Плывёте по течению без направления"
+    }
+  },
+  2: {
+    yes: {
+      strengths: "Надёжность и последовательность",
+      weaknesses: "Доделываете даже то, что потеряло смысл"
+    },
+    no: {
+      strengths: "Завершение дел требует внимания",
+      weaknesses: "Теряете интерес на середине пути"
+    }
+  },
+  3: {
+    yes: {
+      strengths: "Финансовая осознанность и контроль",
+      weaknesses: "Можете зацикливаться на каждой трате"
+    },
+    no: {
+      strengths: "Финансовый учёт требует внимания",
+      weaknesses: "Импульсивные траты на эмоциях"
+    }
+  },
+  4: {
+    yes: {
+      strengths: "Знаете свою стоимость",
+      weaknesses: "Рискуете всё мерить деньгами"
+    },
+    no: {
+      strengths: "Денежная уверенность требует внимания",
+      weaknesses: "Работаете за «спасибо»"
+    }
+  },
+  5: {
+    yes: {
+      strengths: "Внутренняя наполненность и смысл",
+      weaknesses: "Забываете про баланс работа-жизнь"
+    },
+    no: {
+      strengths: "Поиск своего дела требует внимания",
+      weaknesses: "Работаете на автомате без души"
+    }
+  },
+  6: {
+    yes: {
+      strengths: "Сохраняете жажду роста",
+      weaknesses: "Гонитесь за новыми знаниями"
+    },
+    no: {
+      strengths: "Мотивация к развитию требует внимания",
+      weaknesses: "Чувствуете, что потолок достигнут"
+    }
+  },
+  7: {
+    yes: {
+      strengths: "Природная коммуникабельность",
+      weaknesses: "Можете терять себя, подстраиваясь"
+    },
+    no: {
+      strengths: "Навыки общения требуют внимания",
+      weaknesses: "Избегаете новых знакомств"
+    }
+  },
+  8: {
+    yes: {
+      strengths: "Эмоциональная устойчивость",
+      weaknesses: "Подавляете свои эмоции ради мира"
+    },
+    no: {
+      strengths: "Управление конфликтами требует внимания",
+      weaknesses: "Носите обиды годами"
+    }
+  },
+  9: {
+    yes: {
+      strengths: "Умеете распределять энергию",
+      weaknesses: "Слишком строги к режиму"
+    },
+    no: {
+      strengths: "Баланс работы и отдыха требует внимания",
+      weaknesses: "Работаете на износ или прокрастинируете"
+    }
+  },
+  10: {
+    yes: {
+      strengths: "Сохраняете любопытство к жизни",
+      weaknesses: "Распыляетесь на слишком многое"
+    },
+    no: {
+      strengths: "Открытость новому требует внимания",
+      weaknesses: "Застряли в привычной колее"
+    }
+  }
+};
+
+// Названия блоков
+const blockNames = {
+  1: "🎯 Работа и цели",
+  2: "💰 Финансы",
+  3: "✨ Самореализация",
+  4: "🤝 Отношения",
+  5: "⚖️ Баланс и энергия"
+};
+
+// Хранение ответов и данных
+let answers = {};
+let wheelData = {};
+let valuesData = {};
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+  renderQuestions();
+  updateProgress();
+  document.getElementById('totalQ').textContent = questionsData.length;
+});
+
+// Отрисовка вопросов
+function renderQuestions() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+  
+  questionsData.forEach((q, index) => {
+    const block = document.createElement('div');
+    block.className = 'question-block';
+    block.innerHTML = `
+      <div class="question-text">
+        <span class="question-num">${index + 1}.</span>
+        ${q.text}
+      </div>
+      <div class="options">
+        <button class="option-btn yes" onclick="selectAnswer(${q.id}, 'Y', this)">
+          Да
+        </button>
+        <button class="option-btn unknown" onclick="selectAnswer(${q.id}, 'U', this)">
+          Не знаю
+        </button>
+        <button class="option-btn no" onclick="selectAnswer(${q.id}, 'N', this)">
+          Нет
+        </button>
+      </div>
+    `;
+    container.appendChild(block);
+  });
+}
+
+// Выбор ответа
+function selectAnswer(questionId, answer, button) {
+  // Снимаем выделение с других кнопок
+  const parent = button.parentElement;
+  parent.querySelectorAll('.option-btn').forEach(btn => {
+    btn.classList.remove('selected');
+  });
+  
+  // Выделяем выбранную кнопку
+  button.classList.add('selected');
+  
+  // Сохраняем ответ
+  answers[questionId] = answer;
+  
+  // Обновляем прогресс
+  updateProgress();
+  
+  // Скрываем предупреждение если оно было
+  document.getElementById('alertMessage').classList.remove('show');
+  
+  // Если изменился ответ и результаты уже показаны - обновляем
+  if (document.getElementById('resultsSection').style.display !== 'none') {
+    recalculateResults();
+  }
+}
+
+// Обновление прогресса
+function updateProgress() {
+  const answered = Object.keys(answers).length;
+  const total = questionsData.length;
+  const percentage = (answered / total) * 100;
+  
+  document.getElementById('progressBar').style.width = percentage + '%';
+  document.getElementById('currentQ').textContent = answered;
+}
+
+// Попытка расчета результатов с проверкой
+function tryCalculateResults() {
+  const answered = Object.keys(answers).length;
+  const total = questionsData.length;
+  
+  if (answered < total) {
+    // Показываем предупреждение
+    document.getElementById('alertMessage').classList.add('show');
+    
+    // Прокручиваем к первому неотвеченному вопросу
+    const firstUnanswered = questionsData.find(q => !answers[q.id]);
+    if (firstUnanswered) {
+      const questionElement = document.querySelectorAll('.question-block')[questionsData.indexOf(firstUnanswered)];
+      questionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+  
+  // Скрываем предупреждение
+  document.getElementById('alertMessage').classList.remove('show');
+  
+  // Показываем загрузку
+  const loadingSection = document.getElementById('loadingSection');
+  loadingSection.classList.add('show');
+  
+  // Имитируем загрузку и затем показываем результаты
+  setTimeout(() => {
+    loadingSection.classList.remove('show');
+    calculateResults();
+  }, 1500);
+}
+
+// Расчет результатов
+function calculateResults() {
+  // Показываем результаты
+  document.getElementById('resultsSection').style.display = 'block';
+  
+  // Расчет профиля по блокам
+  displayProfileBlocks();
+  
+  // Расчет колеса баланса
+  calculateWheel();
+  
+  // Расчет ценностей
+  calculateValues();
+  
+  // Инициализация калькулятора дохода
+  calcIncomeNew();
+  
+  // Прокрутка к результатам
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Пересчет результатов при изменении ответов
+function recalculateResults() {
+  displayProfileBlocks();
+  calculateWheel();
+  calculateValues();
+  calcIncomeNew();
+}
+
+// Отображение профиля по блокам
+function displayProfileBlocks() {
+  const container = document.getElementById('profileBlocks');
+  container.innerHTML = '';
+  
+  // Группируем вопросы по блокам
+  const blocks = [
+    {id: 1, questions: [1, 2], name: blockNames[1]},
+    {id: 2, questions: [3, 4], name: blockNames[2]},
+    {id: 3, questions: [5, 6], name: blockNames[3]},
+    {id: 4, questions: [7, 8], name: blockNames[4]},
+    {id: 5, questions: [9, 10], name: blockNames[5]}
+  ];
+  
+  blocks.forEach(block => {
+    const blockDiv = document.createElement('div');
+    blockDiv.className = 'profile-block';
+    
+    let blockStrengths = [];
+    let blockWeaknesses = [];
+    
+    block.questions.forEach(qId => {
+      const answer = answers[qId] || 'U';
+      const interp = interpretations[qId];
+      
+      if (answer === 'Y' && interp.yes) {
+        blockStrengths.push(interp.yes.strengths);
+        blockWeaknesses.push(interp.yes.weaknesses);
+      } else if (answer === 'N' && interp.no) {
+        blockStrengths.push(interp.no.strengths);
+        blockWeaknesses.push(interp.no.weaknesses);
+      } else {
+        blockStrengths.push("Требует дополнительного изучения");
+        blockWeaknesses.push("Неопределённость может создавать напряжение");
+      }
+    });
+    
+    blockDiv.innerHTML = `
+      <div class="block-title">${block.name}</div>
+      <div class="block-strength">
+        <div class="block-label">Сильные стороны</div>
+        <div class="block-content">${blockStrengths.join('. ')}</div>
+      </div>
+      <div class="block-weakness">
+        <div class="block-label">Зоны развития</div>
+        <div class="block-content">${blockWeaknesses.join('. ')}</div>
+      </div>
+    `;
+    
+    container.appendChild(blockDiv);
+  });
+}
+
+// Расчет колеса баланса с 10-балльной шкалой
+function calculateWheel() {
+  // Матрица комбинаций для расчета баллов (масштабируем до 7)
+  const scoreMatrix = {
+    'YY': 7, 'YU': 5, 'UY': 5, 'YN': 4,
+    'NY': 4, 'UU': 3, 'UN': 3, 'NU': 3, 'NN': 2
+  };
+  
+  // Сферы и соответствующие вопросы
+  const spheres = {
+    'Работа/Цели': [1, 2],
+    'Финансы': [3, 4],
+    'Самореализация': [5, 6],
+    'Отношения': [7, 8],
+    'Баланс/Энергия': [9, 10]
+  };
+  
+  // Рассчитываем только если еще не было расчета
+  if (Object.keys(wheelData).length === 0) {
+    for (let sphere in spheres) {
+      const questions = spheres[sphere];
+      const a1 = answers[questions[0]] || 'U';
+      const a2 = answers[questions[1]] || 'U';
+      const combo = a1 + a2;
+      // Округляем до целого числа
+      wheelData[sphere] = Math.round(scoreMatrix[combo] || 3);
+    }
+  }
+  
+  // Создаем ползунки для управления
+  const slidersContainer = document.getElementById('wheelSliders');
+  slidersContainer.innerHTML = '';
+  
+  for (let sphere in wheelData) {
+    const value = wheelData[sphere];
+    
+    const sliderGroup = document.createElement('div');
+    sliderGroup.className = 'slider-group';
+    sliderGroup.innerHTML = `
+      <span class="slider-label">${sphere}</span>
+      <input type="range" class="slider" min="0" max="10" step="1" 
+             value="${value}" 
+             oninput="updateWheelValue('${sphere}', this.value)">
+      <span class="slider-value">${value}/10</span>
+    `;
+    slidersContainer.appendChild(sliderGroup);
+  }
+  
+  // Рисуем колесо
+  drawWheel();
+}
+
+// Обновление значения колеса
+function updateWheelValue(sphere, value) {
+  wheelData[sphere] = parseInt(value);
+  
+  // Обновляем отображение значения
+  const sliderGroups = document.querySelectorAll('.slider-group');
+  sliderGroups.forEach(group => {
+    if (group.querySelector('.slider-label').textContent === sphere) {
+      const valueSpan = group.querySelector('.slider-value');
+      valueSpan.textContent = value + '/10';
+    }
+  });
+  
+  // Перерисовываем колесо
+  drawWheel();
+}
+
+// Рисование колеса баланса
+function drawWheel() {
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const radius = 150;
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Рисуем сетку для 10 уровней
+  ctx.strokeStyle = '#E2E8F0';
+  ctx.lineWidth = 1;
+  
+  for (let r = 1; r <= 10; r++) {
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, (radius / 10) * r, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
+  
+  // Рисуем оси
+  const labels = Object.keys(wheelData);
+  const angleStep = (2 * Math.PI) / labels.length;
+  
+  labels.forEach((label, i) => {
+    const angle = -Math.PI / 2 + angleStep * i;
+    const x = centerX + Math.cos(angle) * radius;
+    const y = centerY + Math.sin(angle) * radius;
+    
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    
+    // Подписи
+    ctx.font = '13px sans-serif';
+    ctx.fillStyle = '#0F172A';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    const labelX = centerX + Math.cos(angle) * (radius + 30);
+    const labelY = centerY + Math.sin(angle) * (radius + 30);
+    
+    // Разбиваем длинные надписи
+    const words = label.split('/');
+    if (words.length > 1) {
+      ctx.fillText(words[0], labelX, labelY - 7);
+      ctx.fillText(words[1], labelX, labelY + 7);
+    } else {
+      ctx.fillText(label, labelX, labelY);
+    }
+  });
+  
+  // Рисуем основную фигуру колеса
+  ctx.beginPath();
+  
+  labels.forEach((label, i) => {
+    const angle = -Math.PI / 2 + angleStep * i;
+    const value = wheelData[label];
+    const r = (radius / 10) * value;
+    const x = centerX + Math.cos(angle) * r;
+    const y = centerY + Math.sin(angle) * r;
+    
+    if (i === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  });
+  
+  ctx.closePath();
+  
+  // Заливка и обводка - всегда синяя
+  ctx.fillStyle = 'rgba(37, 99, 235, 0.3)';
+  ctx.strokeStyle = '#2563EB';
+  ctx.lineWidth = 2;
+  ctx.fill();
+  ctx.stroke();
+  
+  // Рисуем точки на вершинах - все синие
+  labels.forEach((label, i) => {
+    const angle = -Math.PI / 2 + angleStep * i;
+    const value = wheelData[label];
+    const r = (radius / 10) * value;
+    const x = centerX + Math.cos(angle) * r;
+    const y = centerY + Math.sin(angle) * r;
+    
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = '#2563EB';
+    ctx.fill();
+  });
+}
+
+// Расчет ценностей с 5-балльной шкалой и округлением
+function calculateValues() {
+  // Получаем баллы сфер из колеса баланса
+  const scoreMatrix = {
+    'YY': 7, 'YU': 5, 'UY': 5, 'YN': 4,
+    'NY': 4, 'UU': 3, 'UN': 3, 'NU': 3, 'NN': 2
+  };
+  
+  // Расчет баллов сфер
+  const sphereScores = {
+    work: scoreMatrix[(answers[1] || 'U') + (answers[2] || 'U')] || 3,
+    finance: scoreMatrix[(answers[3] || 'U') + (answers[4] || 'U')] || 3,
+    realization: scoreMatrix[(answers[5] || 'U') + (answers[6] || 'U')] || 3,
+    relations: scoreMatrix[(answers[7] || 'U') + (answers[8] || 'U')] || 3,
+    balance: scoreMatrix[(answers[9] || 'U') + (answers[10] || 'U')] || 3
+  };
+  
+  // Расчет ценностей на 5-балльной шкале с округлением до 0.5
+  if (Object.keys(valuesData).length === 0) {
+    const roundToHalf = (num) => Math.round(num * 2) / 2;
+    
+    valuesData = {
+      'Смысл': roundToHalf((sphereScores.realization / 7) * 5),
+      'Польза': roundToHalf((sphereScores.relations / 7) * 5),
+      'Деньги': roundToHalf((sphereScores.finance / 7) * 5),
+      'Свобода': roundToHalf(((sphereScores.balance + sphereScores.work) / 14) * 5),
+      'Система': roundToHalf(((sphereScores.work + sphereScores.realization) / 14) * 5)
+    };
+  }
+  
+  // Создаем вертикальный эквалайзер
+  createValuesEqualizer();
+}
+
+// Создание улучшенного вертикального эквалайзера
+function createValuesEqualizer() {
+  const container = document.getElementById('valuesEqualizer');
+  // Сохраняем метки шкалы
+  const scaleMarks = container.querySelector('.scale-marks');
+  container.innerHTML = '';
+  if (scaleMarks) {
+    container.appendChild(scaleMarks);
+  }
+  
+  const fullNames = {
+    'Смысл': 'Смысл и предназначение',
+    'Польза': 'Польза людям',
+    'Деньги': 'Деньги без предательства',
+    'Свобода': 'Автономия и гибкость',
+    'Система': 'Системность и результат'
+  };
+  
+  for (let valueName in valuesData) {
+    const column = document.createElement('div');
+    column.className = 'eq-column';
+    
+    const value = valuesData[valueName];
+    const percentage = (value / 5) * 100;
+    
+    column.innerHTML = `
+      <div class="eq-bar-container">
+        <div class="eq-bar-bg"></div>
+        <div class="eq-bar" style="height: ${percentage}%" data-value="${valueName}">
+          <span class="eq-value">${value}</span>
+        </div>
+      </div>
+      <div class="eq-controls">
+        <button class="eq-btn" onclick="changeValue('${valueName}', -0.5)">−</button>
+        <button class="eq-btn" onclick="changeValue('${valueName}', 0.5)">+</button>
+      </div>
+      <div class="eq-label">${fullNames[valueName]}</div>
+    `;
+    
+    container.appendChild(column);
+  }
+}
+
+// Изменение значения ценности кнопками
+function changeValue(valueName, delta) {
+  let newValue = valuesData[valueName] + delta;
+  newValue = Math.max(0, Math.min(5, newValue));
+  newValue = Math.round(newValue * 2) / 2; // Округление до 0.5
+  
+  valuesData[valueName] = newValue;
+  updateEqualizer();
+}
+
+// Обновление визуализации эквалайзера
+function updateEqualizer() {
+  for (let valueName in valuesData) {
+    const value = valuesData[valueName];
+    const percentage = (value / 5) * 100;
+    
+    // Находим элементы
+    const bar = document.querySelector(`.eq-bar[data-value="${valueName}"]`);
+    const valueSpan = bar.querySelector('.eq-value');
+    
+    // Обновляем
+    bar.style.height = percentage + '%';
+    valueSpan.textContent = value;
+  }
+}
+
+// Генерация рекомендаций (убрана, заменена калькулятором)
+
+// Калькулятор дохода
+document.addEventListener('DOMContentLoaded', function() {
+  // Инициализация калькулятора после загрузки DOM
+  initCalculator();
+});
+
+function initCalculator() {
+  const skills = document.querySelectorAll(".skill");
+  if (skills.length > 0) {
+    skills.forEach(s => {
+      s.addEventListener("click", function(e) {
+        // Предотвращаем всплытие события
+        e.stopPropagation();
+        this.classList.toggle("active");
+        calcIncomeNew();
+      });
+    });
+    
+    // Первичный расчет
+    calcIncomeNew();
+  }
+}
+
+function calcIncomeNew(){
+  const levelSelect = document.getElementById("level");
+  const daysPerWeekInput = document.getElementById("daysPerWeek");
+  const consultationsInput = document.getElementById("consultations");
+  
+  if (!levelSelect || !daysPerWeekInput || !consultationsInput) return;
+  
+  const rate = parseFloat(levelSelect.value) || 3000;
+  const daysPerWeek = parseInt(daysPerWeekInput.value) || 5;
+  const consultations = parseInt(consultationsInput.value) || 4;
+
+  const daysPerMonth = daysPerWeek * 4; // считаем месяц как 4 недели
+  const daysPerMonthSpan = document.getElementById("daysPerMonth");
+  if (daysPerMonthSpan) {
+    daysPerMonthSpan.innerText = daysPerMonth;
+  }
+
+  const base = daysPerMonth * consultations * rate;
+  const activeSkills = document.querySelectorAll(".skill.active").length;
+  const final = base * (1 + activeSkills * 0.1);
+  
+  const finalIncomeElement = document.getElementById("finalIncomeCalc");
+  if (finalIncomeElement) {
+    finalIncomeElement.innerText = Math.round(final).toLocaleString('ru-RU');
+  }
+}
+
+// Функция показа/скрытия бонусов
+function toggleBonuses() {
+  const bonusesContent = document.getElementById('bonusesContent');
+  if (bonusesContent) {
+    if (bonusesContent.style.display === 'none') {
+      bonusesContent.style.display = 'block';
+    } else {
+      bonusesContent.style.display = 'none';
+    }
+  }
+}
+
+// Функция скачивания результатов
+function downloadResults() {
+  // Собираем все данные
+  const results = {
+    date: new Date().toLocaleString('ru-RU'),
+    
+    // Ответы на вопросы
+    questions: questionsData.map(q => ({
+      question: q.text,
+      answer: answers[q.id] === 'Y' ? 'Да' : answers[q.id] === 'N' ? 'Нет' : 'Не знаю'
+    })),
+    
+    // Колесо баланса
+    wheelBalance: wheelData,
+    
+    // Ценности
+    values: valuesData,
+    
+    // Калькулятор дохода
+    incomeCalculator: {
+      level: document.getElementById("level").selectedOptions[0].text,
+      daysPerWeek: document.getElementById("daysPerWeek").value,
+      consultationsPerDay: document.getElementById("consultations").value,
+      activeSkills: Array.from(document.querySelectorAll(".skill.active")).map(s => s.textContent),
+      estimatedIncome: document.getElementById("finalIncomeCalc").textContent
+    }
+  };
+  
+  // Формируем текстовый файл
+  let content = "РЕЗУЛЬТАТЫ ИНТЕРАКТИВНОЙ КОНСУЛЬТАЦИИ\n";
+  content += "=====================================\n\n";
+  content += `Дата прохождения: ${results.date}\n\n`;
+  
+  content += "ОТВЕТЫ НА ВОПРОСЫ:\n";
+  content += "------------------\n";
+  results.questions.forEach((q, i) => {
+    content += `${i + 1}. ${q.question}\n`;
+    content += `   Ответ: ${q.answer}\n\n`;
+  });
+  
+  content += "\nКОЛЕСО БАЛАНСА ЖИЗНИ:\n";
+  content += "---------------------\n";
+  for (let sphere in results.wheelBalance) {
+    content += `${sphere}: ${results.wheelBalance[sphere]}/10\n`;
+  }
+  
+  content += "\nВАШИ ЦЕННОСТИ:\n";
+  content += "---------------\n";
+  const fullValueNames = {
+    'Смысл': 'Смысл и предназначение',
+    'Польза': 'Польза людям',
+    'Деньги': 'Деньги без предательства',
+    'Свобода': 'Автономия и гибкость',
+    'Система': 'Системность и результат'
+  };
+  for (let value in results.values) {
+    content += `${fullValueNames[value]}: ${results.values[value]}/5\n`;
+  }
+  
+  content += "\nКАЛЬКУЛЯТОР ДОХОДА:\n";
+  content += " Чтобы поиск клиентов был проще, мы подготовили для вас готовые материалы и бонусы для продвижения\n";
+  content += "-------------------\n";
+  content += `Уровень: ${results.incomeCalculator.level}\n`;
+  content += `Дней работы в неделю: ${results.incomeCalculator.daysPerWeek}\n`;
+  content += `Консультаций в день: ${results.incomeCalculator.consultationsPerDay}\n`;
+  if (results.incomeCalculator.activeSkills.length > 0) {
+    content += `Дополнительные навыки: ${results.incomeCalculator.activeSkills.join(', ')}\n`;
+  }
+  content += `\nРасчётный заработок: ${results.incomeCalculator.estimatedIncome} ₽\n`;
+  
+  content += "\n=====================================\n";
+  content += "Спасибо за прохождение консультации!\n";
+  
+  // Создаем и скачиваем файл
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `Консультация_${new Date().toISOString().slice(0,10)}.txt`;
+  link.click();
+  
+  // Освобождаем память
+  URL.revokeObjectURL(link.href);
+}
+</script>
 </body>
 </html>
